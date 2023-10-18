@@ -335,6 +335,13 @@ function toModelValue(field: string, data) {
 function fromModelValue(field: string, data) {
   const fType = table.value.fields[field].type
   switch (fType) {
+    case 'unsigned':
+    case 'integer':
+    case 'float':
+    case 'double':
+      return +data
+    case 'boolean':
+    case 'list':
     case 'json':
       return JSON.parse(data)
   }
@@ -412,7 +419,7 @@ async function onSubmitChanges() {
 async function onDeleteRow({ row, $index }) {
   state.loading = true
   try {
-    await sendQuery('remove', props.name as never, row)
+    await sendQuery('remove', props.name as never, pick(row, table.value.primary))
     await updateData()
     message.success(`成功删除数据`)
   } catch (e) {
