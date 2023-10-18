@@ -148,6 +148,7 @@ const pageSizes = [30, 50, 100, 150, 200, 500, 1000]
 
 const props = defineProps<{
   name: string
+  filter: boolean
 }>()
 
 const table = computed(() => store.database.tables[props.name])
@@ -181,7 +182,18 @@ async function updateData() {
     sort: querySort,
   }
   // await new Promise((res) => setInterval(() => res(0), 1000))
-  tableData.value = await sendQuery('get', props.name as never, {}, modifier)
+  try {
+    const row = props.filter ? Object.keys(state.newRow).reduce((o, field) => {
+      if (state.newRow[field]) {
+        o[field] = state.newRow[field]
+        o[field] = fromModelValue(field, o[field])
+      }
+      return o
+    }, {}): {}
+    tableData.value = await sendQuery('get', props.name as never, row, modifier)
+  } catch {
+    // Ignore invalid query
+  }
   await nextTick()
   state.loading = false
 }
