@@ -63,7 +63,7 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
     this.addListener('get')
     this.addListener('remove', true)
     this.addListener('set')
-    this.addListener('stats')
+    this.addListener('stats', true)
     this.addListener('upsert', true)
 
     ctx.on('model', () => this.refresh())

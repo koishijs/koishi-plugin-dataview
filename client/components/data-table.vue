@@ -112,7 +112,7 @@
 <script lang="ts" setup>
 
 import { Dict } from 'koishi'
-import { computed, ComputedRef, nextTick, reactive, ref, watch, watchEffect } from 'vue'
+import { computed, ComputedRef, nextTick, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { store, message, pick } from '@koishijs/client'
 import { formatSize, handleError, sendQuery, timeStr } from '../utils'
 
@@ -190,6 +190,8 @@ watchEffect(updateData)
 defineExpose({
   updateData,
 })
+
+onMounted(() => sendQuery('stats'))
 
 const currPage = computed({
   get: () => Math.floor(state.offset / state.pageSize) + 1,
