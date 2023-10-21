@@ -19,7 +19,7 @@
     <el-table
       :data="tableData"
       class="data-table"
-      style="width: 100%"
+      style="width: 99.5%"
       height="100%"
       :border="true"
       :cell-class-name="({ row, column, rowIndex, columnIndex }) => isCellChanged({ row, column, $index: rowIndex }, false)
