@@ -19,7 +19,7 @@
     <el-table
       :data="tableData"
       class="data-table"
-      style="width: 99.5%"
+      style="width: 100%"
       height="100%"
       :border="true"
       :cell-class-name="({ row, column, rowIndex, columnIndex }) => isCellChanged({ row, column, $index: rowIndex }, false)
@@ -53,6 +53,7 @@
           <template v-if="isCellChanged(scope, false)">
             <component
               :is="columnInputAttr[scope.column.label].is"
+              ref="changedCells"
               v-model="state.changes[scope.$index][scope.column.label].model"
               v-bind="columnInputAttr[scope.column.label].attrs || {}"
               size="small"
@@ -164,6 +165,12 @@ watch(() => table.value.fields, (v) => {
     if (!(fName in state.newRow))
       state.newRow[fName] = ''
 }, { immediate: true })
+
+// set focus on cellChanged
+const changedCells = ref([])
+watch(() => changedCells.value.length, (v) => {
+  if (v) changedCells.value[v - 1].focus()
+})
 
 // used as async computed
 const tableData = ref([])
