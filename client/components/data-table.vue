@@ -26,6 +26,7 @@
         ? 'cell-changed'
         : ''
       "
+      :cell-style="getCellStyle"
       @sort-change="onSort"
       @cell-dblclick="onOuterCellClick"
     >
@@ -114,8 +115,9 @@
 
 import { Dict } from 'koishi'
 import { computed, ComputedRef, nextTick, onMounted, reactive, ref, watch, watchEffect } from 'vue'
-import { store, message, pick } from '@koishijs/client'
+import { store, message, pick, useConfig } from '@koishijs/client'
 import { formatSize, handleError, sendQuery, timeStr } from '../utils'
+import { schema } from '..'
 
 export interface TableStatus {
   loading: boolean
@@ -150,6 +152,7 @@ const pageSizes = [30, 50, 100, 150, 200, 500, 1000]
 const props = defineProps<{
   name: string
   filter: boolean
+  color: boolean
 }>()
 
 const table = computed(() => store.database.tables[props.name])
@@ -205,6 +208,21 @@ async function updateData() {
   state.loading = false
 }
 watchEffect(updateData)
+
+const rawConfig = useConfig()
+const config = computed(() => schema(rawConfig.value))
+
+function getCellStyle({ column }) {
+  if (!props.color) return column.cellStyle = undefined
+  if (column.cellStyle) return column.cellStyle
+  for (const pref of config.value.dataview?.colors ?? []) {
+    if (!pref || !pref.types) continue
+    if (pref.types.includes(table.value?.fields?.[column.label]?.type)) {
+      return column.cellStyle = { 'background-color': pref.color }
+    }
+  }
+  return column.cellStyle = {}
+}
 
 defineExpose({
   updateData,
@@ -531,6 +549,10 @@ async function onInsertRow() {
     .cell:first-child {
       padding: 0;
     }
+  }
+
+  .hover-row td {
+    filter: brightness(0.95);
   }
 
   .el-input {

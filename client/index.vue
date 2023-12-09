@@ -6,6 +6,9 @@
     </template>
 
     <template #menu>
+      <span class="menu-item" @click="color = !color">
+        <k-icon class="menu-icon" :name="colorIcon"></k-icon>
+      </span>
       <span class="menu-item" @click="filter = !filter">
         <k-icon class="menu-icon" :name="filterIcon"></k-icon>
       </span>
@@ -24,7 +27,7 @@
       <k-empty v-if="!current">
         <div>在左侧选择要访问的数据表</div>
       </k-empty>
-      <table-view v-else :key="current" :name="current" :filter="filter" ref="table"></table-view>
+      <table-view v-else :key="current" :name="current" :filter="filter" :color="color" ref="table"></table-view>
     </keep-alive>
   </k-layout>
 </template>
@@ -33,7 +36,7 @@
 
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { router, store } from '@koishijs/client'
+import { router, store, useConfig } from '@koishijs/client'
 import { formatSize } from './utils'
 import TableView from './components/data-table.vue'
 
@@ -43,10 +46,14 @@ function join(source: string | string[]) {
 
 const table = ref()
 
+const route = useRoute()
+const config = useConfig()
+
 const filter = ref(false)
 const filterIcon = computed(() => filter.value ? 'filter-off' : 'filter-on')
 
-const route = useRoute()
+const color = ref(config.value.dataview?.color ?? false)
+const colorIcon = computed(() => color.value ? 'rgb-off' : 'rgb-on')
 
 const current = computed<string>({
   get() {
