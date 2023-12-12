@@ -6,6 +6,7 @@ import './icons'
 declare module '@koishijs/client' {
   interface Config {
     dataview?: {
+      autoStats?: boolean
       color?: boolean
       colors?: TypeColor[]
     }
@@ -45,6 +46,7 @@ const defaultTypeColors: TypeColor[] = [
 
 export const schema = Schema.object({
   dataview: Schema.object({
+    autoStats: Schema.boolean().default(true).description('刷新时自动同步'),
     color: Schema.boolean().default(false).description('默认启用类型染色'),
     colors: Schema.array(TypeColor).default(defaultTypeColors),
   }),

@@ -12,7 +12,7 @@
       <span class="menu-item" @click="filter = !filter">
         <k-icon class="menu-icon" :name="filterIcon"></k-icon>
       </span>
-      <span class="menu-item" @click="table?.updateData()">
+      <span class="menu-item" @click="table?.updateData()?.then(() => (config.dataview?.autoStats ?? true) && table?.sendQuery('stats'))">
         <k-icon class="menu-icon" name="refresh"></k-icon>
       </span>
     </template>
@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { router, store, useConfig } from '@koishijs/client'
 import { formatSize } from './utils'
@@ -65,6 +65,8 @@ const current = computed<string>({
     router.replace('/database/' + name)
   },
 })
+
+const initialized = watch(table, (v) => v?.sendQuery('stats') && initialized())
 
 </script>
 

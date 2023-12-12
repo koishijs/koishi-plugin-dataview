@@ -225,10 +225,9 @@ function getCellStyle({ column }) {
 }
 
 defineExpose({
+  sendQuery,
   updateData,
 })
-
-onMounted(() => sendQuery('stats'))
 
 const currPage = computed({
   get: () => Math.floor(state.offset / state.pageSize) + 1,
