@@ -24,6 +24,7 @@ declare module '@koishijs/console' {
 export interface TableInfo extends Driver.TableStats, Model.Config<any> {
   fields: Field.Config
   primary: string[]
+  PrimaryConstructor: (value: any) => void
 }
 
 export interface DatabaseInfo extends Driver.Stats {
@@ -38,7 +39,14 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
 
   addListener<K extends Methods>(name: K, refresh = false) {
     this.ctx.console.addListener(`database/${name}`, async (...args) => {
-      const result = await (this.ctx.database[name] as any)(...args.map(deserialize))
+      const callargs: any[] = args.map(deserialize)
+      if (['set', 'remove'].includes(name)) {
+        const table = (await this.get()).tables[callargs[0]]
+        if (table.PrimaryConstructor) {
+          callargs[1][table.primary[0]] = new table.PrimaryConstructor(callargs[1][table.primary[0]])
+        }
+      }
+      const result = await (this.ctx.database[name] as any)(...callargs)
       if (refresh) this.refresh()
       return result === undefined ? result : serialize(result)
     }, { authority: 4 })
@@ -74,7 +82,7 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
     const result = { tables: {}, ...stats } as DatabaseInfo
     const tableStats = result.tables
     result.tables = {}
-    for (const name in this.ctx.model.tables) {
+    await Promise.all(Object.keys(this.ctx.model.tables).map(async name => {
       result.tables[name] = {
         ...clone(this.ctx.model.tables[name]),
         ...tableStats[name],
@@ -83,7 +91,11 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
       for (const [key, field] of Object.entries(result.tables[name].fields)) {
         if (field.deprecated) delete result.tables[name].fields[key]
       }
-    }
+      if (result.tables[name].fields[result.tables[name].primary[0]]?.type === 'primary') {
+        const record = await this.ctx.database.select(name as any).limit(1).execute()
+        result.tables[name].PrimaryConstructor = record[0]?.[result.tables[name].primary[0]]?.constructor
+      }
+    }))
     result.tables = Object.fromEntries(Object.entries(result.tables).sort(([a], [b]) => a.localeCompare(b)))
     return result
   }
