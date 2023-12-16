@@ -1,4 +1,4 @@
-import { Card, Context, Schema } from '@koishijs/client'
+import { Context, Schema } from '@koishijs/client'
 import { } from 'koishi-plugin-dataview/src'
 import Database from './index.vue'
 import './icons'
@@ -65,16 +65,5 @@ export default (ctx: Context) => {
     authority: 4,
     fields: ['database'],
     component: Database,
-  })
-
-  ctx.slot({
-    type: 'numeric',
-    component: Card.numeric({
-      title: '数据库体积',
-      icon: 'database',
-      type: 'size',
-      fields: ['database'],
-      content: ({ database }) => database.size,
-    }),
   })
 }

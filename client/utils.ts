@@ -43,9 +43,9 @@ export async function sendQuery<K extends Methods>(name: K, ...args: Parameters<
 export function formatSize(size: number) {
   const units = ['B', 'KB', 'MB', 'GB']
   for (const idx in units) {
-    if (idx && size > 1024) { size /= 1024 } else { return `${size.toFixed(1)} ${units[idx]}` }
+    if (idx && size > 1024) { size /= 1024 } else { return `${+size.toFixed(1)} ${units[idx]}` }
   }
-  return `${size.toFixed(1)} ${units[units.length - 1]}`
+  return `${+size.toFixed(1)} ${units[units.length - 1]}`
 }
 
 export function handleError(e, msg: string = '') {
