@@ -57,13 +57,23 @@ export function handleError(e, msg: string = '') {
   }
   return message.error(msg)
 }
+
 function pad0(n: number) {
   return n.toString().padStart(2, '0')
 }
+
 export function timeStr(date: Date) {
   return [
     pad0(date.getHours()),
     pad0(date.getMinutes()),
     pad0(date.getSeconds()),
   ].join(':')
+}
+
+export function dateStr(date: Date) {
+  return [
+    pad0(date.getFullYear()),
+    pad0(date.getMonth() + 1),
+    pad0(date.getDate()),
+  ].join('-')
 }

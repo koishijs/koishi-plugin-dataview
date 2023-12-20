@@ -116,7 +116,7 @@
 import { Dict } from 'koishi'
 import { computed, ComputedRef, nextTick, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import { store, message, pick, useConfig } from '@koishijs/client'
-import { formatSize, handleError, sendQuery, timeStr } from '../utils'
+import { dateStr, formatSize, handleError, sendQuery, timeStr } from '../utils'
 import { schema } from '..'
 
 export interface TableStatus {
@@ -339,7 +339,7 @@ function renderCell(field: string, { row, column, $index }) {
       return JSON.stringify(data)
     case 'date':
       if (data instanceof Date)
-        return data.toJSON().slice(0, 10)
+        return dateStr(data)
       break
     case 'time':
       if (data instanceof Date)
@@ -347,7 +347,7 @@ function renderCell(field: string, { row, column, $index }) {
       break
     case 'timestamp':
       if (data instanceof Date)
-        return `${data.toJSON().slice(0, 10)} ${timeStr(data)}`
+        return `${dateStr(data)} ${timeStr(data)}`
       break
   }
   return data
