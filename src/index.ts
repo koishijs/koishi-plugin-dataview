@@ -24,7 +24,7 @@ declare module '@koishijs/console' {
 export interface TableInfo extends Driver.TableStats, Model.Config<any> {
   fields: Field.Config
   primary: string[]
-  PrimaryConstructor: (value: any) => void
+  hookObjectId: boolean
 }
 
 export interface DatabaseInfo extends Driver.Stats {
@@ -41,9 +41,13 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
     this.ctx.console.addListener(`database/${name}`, async (...args) => {
       const callargs: any[] = args.map(deserialize)
       if (['set', 'remove'].includes(name)) {
-        const table = (await this.get()).tables[callargs[0]]
-        if (table.PrimaryConstructor) {
-          callargs[1][table.primary[0]] = new table.PrimaryConstructor(callargs[1][table.primary[0]])
+        const table = (await this.get()).tables[callargs[0]]!
+        if (table.hookObjectId) {
+          callargs[1] = {
+            $expr: {
+              $eq: ['$_id', { $toObjectId: callargs[1][table.primary[0]] }],
+            },
+          }
         }
       }
       const result = await (this.ctx.database[name] as any)(...callargs)
@@ -91,10 +95,8 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
       for (const [key, field] of Object.entries(result.tables[name].fields)) {
         if (field.deprecated) delete result.tables[name].fields[key]
       }
-      if (result.tables[name].fields[result.tables[name].primary[0]]?.type === 'primary') {
-        const record = await this.ctx.database.select(name as any).limit(1).execute()
-        result.tables[name].PrimaryConstructor = record[0]?.[result.tables[name].primary[0]]?.constructor
-      }
+      result.tables[name].hookObjectId = result.tables[name].fields[result.tables[name].primary[0]]?.type === 'primary'
+       && ['mongo', 'MongoDriver'].includes(Object.values(this.ctx.database.drivers)[0].constructor.name)
     }))
     result.tables = Object.fromEntries(Object.entries(result.tables).sort(([a], [b]) => a.localeCompare(b)))
     return result
