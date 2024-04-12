@@ -19,6 +19,7 @@ const FieldType = [
   'char', 'string', 'text',
   'boolean',
   'timestamp', 'date', 'time',
+  'binary',
   'list', 'json',
   'expr',
 ] as const

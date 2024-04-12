@@ -1,6 +1,10 @@
+import { Binary } from 'koishi'
+
 export function serialize(obj: unknown): string {
+  if (Binary.is(obj)) return `"b${obj.byteLength}"`
   if (obj instanceof Date) return `"d${obj.toJSON()}"`
   return JSON.stringify(obj, (_, value) => {
+    if (Binary.is(value)) return `b${value.byteLength}`
     if (typeof value === 'string') return 's' + value
     if (typeof value === 'object') {
       if (value instanceof Date) return 'd' + new Date(value).toJSON()
@@ -27,7 +31,9 @@ export function deserialize(str: string): unknown {
     typeof v === 'string'
       ? v[0] === 's'
         ? v.slice(1)
-        : new Date(v.slice(1))
+        : v[0] === 'b'
+          ? undefined
+          : new Date(v.slice(1))
       : v,
   )
 }

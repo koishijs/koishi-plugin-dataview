@@ -1,4 +1,4 @@
-import { clone, Context, Dict, Driver, Field, makeArray, Model, Schema } from 'koishi'
+import { clone, Context, Dict, Driver, Field, makeArray, Model, Schema, Type } from 'koishi'
 import { DataService } from '@koishijs/console'
 import { resolve } from 'path'
 import { deserialize, serialize } from './utils'
@@ -24,7 +24,7 @@ declare module '@koishijs/console' {
 export interface TableInfo extends Driver.TableStats, Model.Config<any> {
   fields: Field.Config
   primary: string[]
-  hookObjectId: boolean
+  HookObjectId: (value: any) => void
 }
 
 export interface DatabaseInfo extends Driver.Stats {
@@ -42,12 +42,8 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
       const callargs: any[] = args.map(deserialize)
       if (['set', 'remove'].includes(name)) {
         const table = (await this.get()).tables[callargs[0]]!
-        if (table.hookObjectId) {
-          callargs[1] = {
-            $expr: {
-              $eq: ['$_id', { $toObjectId: callargs[1][table.primary[0]] }],
-            },
-          }
+        if (table.HookObjectId) {
+          callargs[1][table.primary[0]] = new table.HookObjectId(callargs[1][table.primary[0]])
         }
       }
       const result = await (this.ctx.database[name] as any)(...callargs)
@@ -95,8 +91,11 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
       for (const [key, field] of Object.entries(result.tables[name].fields)) {
         if (field.deprecated) delete result.tables[name].fields[key]
       }
-      result.tables[name].hookObjectId = result.tables[name].fields[result.tables[name].primary[0]]?.type === 'primary'
-       && ['mongo', 'MongoDriver'].includes(Object.values(this.ctx.database.drivers)[0].constructor.name)
+      if ((result.tables[name].fields[result.tables[name].primary[0]]?.type as Type)?.type === 'primary'
+       && ['mongo', 'MongoDriver'].includes(Object.values(this.ctx.database.drivers)[0].constructor.name)) {
+        const record = await this.ctx.database.select(name as any).limit(1).execute()
+        result.tables[name].HookObjectId = record[0]?.[result.tables[name].primary[0]]?.constructor
+      }
     }))
     result.tables = Object.fromEntries(Object.entries(result.tables).sort(([a], [b]) => a.localeCompare(b)))
     return result

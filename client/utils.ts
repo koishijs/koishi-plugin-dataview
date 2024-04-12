@@ -1,10 +1,12 @@
 import { Database } from 'koishi'
-import { message, send } from '@koishijs/client'
+import { Binary, message, send } from '@koishijs/client'
 import { Methods } from 'koishi-plugin-dataview'
 
 export function serialize(obj: unknown): string {
+  if (Binary.is(obj)) return `"b${obj.byteLength}"`
   if (obj instanceof Date) return `"d${obj.toJSON()}"`
   return JSON.stringify(obj, (_, value) => {
+    if (Binary.is(value)) return `b${value.byteLength}`
     if (typeof value === 'string') return 's' + value
     if (typeof value === 'object') {
       if (value instanceof Date) return 'd' + new Date(value).toJSON()
@@ -31,7 +33,9 @@ export function deserialize(str: string): any {
     typeof v === 'string'
       ? v[0] === 's'
         ? v.slice(1)
-        : new Date(v.slice(1))
+        : v[0] === 'b'
+          ? +v.slice(1)
+          : new Date(v.slice(1))
       : v,
   )
 }

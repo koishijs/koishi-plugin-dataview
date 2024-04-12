@@ -217,7 +217,7 @@ function getCellStyle({ column }) {
   if (column.cellStyle) return column.cellStyle
   for (const pref of config.value.dataview?.colors ?? []) {
     if (!pref || !pref.types) continue
-    if (pref.types.includes(table.value?.fields?.[column.label]?.type)) {
+    if (pref.types.includes(table.value?.fields?.[column.label]?.deftype)) {
       return column.cellStyle = { 'background-color': pref.color }
     }
   }
@@ -275,7 +275,7 @@ const columnInputAttr: ComputedRef<Dict<{
   const dateAttrs = { clearable: false}
 
   let type, step
-  switch (fieldConfig.type) {
+  switch (fieldConfig.deftype) {
     case 'time':
       return { ...o, [fName]: { is: 'el-time-picker', attrs: dateAttrs} }
     case 'date':
@@ -301,7 +301,7 @@ const columnInputAttr: ComputedRef<Dict<{
   const validate = (val) => {
     if (fieldConfig.nullable === false && !val.length) return false
     if (type.value === 'number') val = parseFloat(val)
-    switch (fieldConfig.type) {
+    switch (fieldConfig.deftype) {
       case 'unsigned':
         if (val < 0)
           return false
@@ -332,7 +332,7 @@ function onSort(e) {
 }
 
 function renderCell(field: string, { row, column, $index }) {
-  const fType = table.value.fields[field].type
+  const fType = table.value.fields[field].deftype
   const data = row[field]
   switch (fType) {
     case 'json':
@@ -349,14 +349,17 @@ function renderCell(field: string, { row, column, $index }) {
       if (data instanceof Date)
         return `${dateStr(data)} ${timeStr(data)}`
       break
+    case 'binary':
+      return `<Binary len=${data}>`
   }
   return data
 }
 
 /** convert cell data to model value */
 function toModelValue(field: string, data) {
-  const fType = table.value.fields[field].type
+  const fType = table.value.fields[field].deftype
   switch (fType) {
+    case 'list':
     case 'json':
       return JSON.stringify(data)
     case 'time':
@@ -371,7 +374,7 @@ function toModelValue(field: string, data) {
 
 /** convert model value data to cell */
 function fromModelValue(field: string, data) {
-  const fType = table.value.fields[field].type
+  const fType = table.value.fields[field].deftype
   switch (fType) {
     case 'unsigned':
     case 'integer':
@@ -399,6 +402,7 @@ function onOuterCellClick(_row, _column, element) {
 }
 function onCellDblClick({ row, column, $index }) {
   if (isCellChanged({ row, column, $index }, false)) return // Change record exists
+  if (table.value.fields[column.label].deftype === 'binary') return
   if (state.changes[$index] === undefined)
     state.changes[$index] = {}
   state.changes[$index][column.label] = reactive({
