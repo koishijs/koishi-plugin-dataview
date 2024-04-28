@@ -74,7 +74,8 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
     this.addListener('stats', true)
     this.addListener('upsert', true)
 
-    ctx.on('model', () => this.refresh())
+    const refresh = ctx.throttle(() => this.refresh(), 500)
+    ctx.on('model', () => refresh())
   }
 
   async getInfo() {

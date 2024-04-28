@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-dataview",
   "description": "View Database in Koishi Console",
-  "version": "2.7.0",
+  "version": "2.7.4",
   "main": "lib/index.cjs",
   "types": "lib/index.d.ts",
   "exports": {
@@ -14,7 +14,8 @@
   },
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "src"
   ],
   "author": "Shigma <shigma10826@gmail.com>",
   "scripts": {
@@ -52,12 +53,12 @@
     }
   },
   "peerDependencies": {
-    "@koishijs/plugin-console": "^5.28.2",
+    "@koishijs/plugin-console": "^5.28.3",
     "koishi": "^4.17.4"
   },
   "devDependencies": {
-    "@koishijs/client": "^5.28.2",
-    "@koishijs/plugin-console": "^5.28.2",
+    "@koishijs/client": "^5.28.3",
+    "@koishijs/plugin-console": "^5.28.3",
     "@types/node": "^20.12.7",
     "esbuild": "^0.20.2",
     "esbuild-register": "^3.5.0",
@@ -65,6 +66,6 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@koishijs/console": "^5.28.2"
+    "@koishijs/console": "^5.28.3"
   }
 }
