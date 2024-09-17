@@ -20,6 +20,7 @@ const FieldType = [
   'boolean',
   'timestamp', 'date', 'time',
   'binary',
+  'bigint',
   'list', 'json',
   'expr',
 ] as const

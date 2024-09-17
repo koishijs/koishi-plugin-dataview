@@ -90,7 +90,7 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
       }
       result.tables[name].primary = makeArray(result.tables[name].primary)
       for (const [key, field] of Object.entries(result.tables[name].fields)) {
-        if (field.deprecated) delete result.tables[name].fields[key]
+        if (!Field.available(field)) delete result.tables[name].fields[key]
       }
       if ((result.tables[name].fields[result.tables[name].primary[0]]?.type as Type)?.type === 'primary'
        && ['mongo', 'MongoDriver'].includes(Object.values(this.ctx.database.drivers)[0].constructor.name)) {

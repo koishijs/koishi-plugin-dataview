@@ -66,6 +66,14 @@
               </template>
             </component>
           </template>
+          <div v-else-if="['string', 'text', 'json', 'list'].includes(table.fields[fName]?.deftype)" @parent-dblclick="onCellDblClick(scope)" class="inner-cell">
+            <el-tooltip show-after="300" popper-class="tooltip-popper">
+              <template #content>{{ renderCell(fName, scope) }}</template>
+            {{
+              renderCell(fName, scope)
+            }}
+            </el-tooltip>
+          </div>
           <div v-else @parent-dblclick="onCellDblClick(scope)" class="inner-cell">
             {{
               renderCell(fName, scope)
@@ -217,7 +225,7 @@ function getCellStyle({ column }) {
   if (column.cellStyle) return column.cellStyle
   for (const pref of config.value.dataview?.colors ?? []) {
     if (!pref || !pref.types) continue
-    if (pref.types.includes(table.value?.fields?.[column.label]?.deftype)) {
+    if (pref.types.includes(table.value?.fields?.[column.label]?.deftype as any)) {
       return column.cellStyle = { 'background-color': pref.color }
     }
   }
@@ -435,7 +443,7 @@ async function onSubmitChanges() {
         data[field] = fromModelValue(field, data[field])
       }
       console.log('Update row: ', data)
-      await sendQuery('set', props.name, pick(row, table.value.primary), data)
+      await sendQuery('set', props.name as never, pick(row, table.value.primary) as any, data as any)
 
       for (const field in validChanges.value[idx]) {
         submitted.push({ idx, field })
@@ -461,7 +469,7 @@ async function onSubmitChanges() {
 async function onDeleteRow({ row, $index }) {
   state.loading = true
   try {
-    await sendQuery('remove', props.name as never, pick(row, table.value.primary))
+    await sendQuery('remove', props.name as never, pick(row, table.value.primary) as any)
     await updateData()
     message.success(`成功删除数据`)
   } catch (e) {
@@ -481,7 +489,7 @@ async function onInsertRow() {
       return o
     }, {})
     console.log('Create row: ', row)
-    await sendQuery('create', props.name as never, row)
+    await sendQuery('create', props.name as never, row as never)
     await updateData()
     message.success(`成功添加数据`)
     for (const field in state.newRow)
@@ -563,5 +571,9 @@ async function onInsertRow() {
       display: block;
     }
   }
+}
+
+.tooltip-popper {
+  max-width: 90%;
 }
 </style>

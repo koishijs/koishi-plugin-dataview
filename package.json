@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-dataview",
   "description": "View Database in Koishi Console",
-  "version": "2.7.4",
+  "version": "2.7.5",
   "main": "lib/index.cjs",
   "types": "lib/index.d.ts",
   "exports": {
@@ -46,6 +46,9 @@
       "zh": "在网页控制台中访问数据库"
     },
     "service": {
+      "implements": [
+        "console.services.database"
+      ],
       "required": [
         "database",
         "console"
@@ -53,19 +56,19 @@
     }
   },
   "peerDependencies": {
-    "@koishijs/plugin-console": "^5.28.3",
-    "koishi": "^4.17.4"
+    "@koishijs/plugin-console": "^5.29.2",
+    "koishi": "^4.17.9"
   },
   "devDependencies": {
-    "@koishijs/client": "^5.28.3",
-    "@koishijs/plugin-console": "^5.28.3",
-    "@types/node": "^20.12.7",
+    "@koishijs/client": "^5.29.2",
+    "@koishijs/plugin-console": "^5.29.2",
+    "@types/node": "^20.14.6",
     "esbuild": "^0.20.2",
     "esbuild-register": "^3.5.0",
-    "koishi": "^4.17.4",
-    "typescript": "^5.4.5"
+    "koishi": "^4.17.9",
+    "typescript": "^5.6.0-dev.20240620"
   },
   "dependencies": {
-    "@koishijs/console": "^5.28.3"
+    "@koishijs/console": "^5.29.2"
   }
 }
