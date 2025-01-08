@@ -67,7 +67,7 @@
             </component>
           </template>
           <div v-else-if="['string', 'text', 'json', 'list'].includes(table.fields[fName]?.deftype)" @parent-dblclick="onCellDblClick(scope)" class="inner-cell">
-            <el-tooltip show-after="300" popper-class="tooltip-popper">
+            <el-tooltip :show-after="300" popper-class="tooltip-popper">
               <template #content>{{ renderCell(fName, scope) }}</template>
             {{
               renderCell(fName, scope)
