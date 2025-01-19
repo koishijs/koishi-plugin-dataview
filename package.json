@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-dataview",
   "description": "View Database in Koishi Console",
-  "version": "2.7.6",
+  "version": "2.7.7",
   "main": "lib/index.cjs",
   "types": "lib/index.d.ts",
   "exports": {

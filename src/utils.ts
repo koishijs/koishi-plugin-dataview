@@ -6,6 +6,7 @@ export function serialize(obj: unknown): string {
   return JSON.stringify(obj, (_, value) => {
     if (Binary.is(value)) return `b${value.byteLength}`
     if (typeof value === 'string') return 's' + value
+    if (typeof value === 'bigint') return 'n' + value.toString()
     if (typeof value === 'object') {
       if (value instanceof Date) return 'd' + new Date(value).toJSON()
       if (value === null) return null
@@ -33,7 +34,9 @@ export function deserialize(str: string): unknown {
         ? v.slice(1)
         : v[0] === 'b'
           ? undefined
-          : new Date(v.slice(1))
+          : v[0] === 'n'
+            ? BigInt(v.slice(1))
+            : new Date(v.slice(1))
       : v,
   )
 }
