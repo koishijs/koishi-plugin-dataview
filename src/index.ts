@@ -1,4 +1,4 @@
-import { clone, Context, Dict, Driver, Field, makeArray, Model, Schema, Type } from 'koishi'
+import { clone, Context, Dict, Driver, Field, makeArray, Model, omit, Schema, Type } from 'koishi'
 import { DataService } from '@koishijs/console'
 import { resolve } from 'path'
 import { deserialize, serialize } from './utils'
@@ -85,7 +85,7 @@ class DatabaseProvider extends DataService<DatabaseInfo> {
     result.tables = {}
     await Promise.all(Object.keys(this.ctx.model.tables).map(async name => {
       result.tables[name] = {
-        ...clone(this.ctx.model.tables[name]),
+        ...clone(omit(this.ctx.model.tables[name], ['ctx'])),
         ...tableStats[name],
       }
       result.tables[name].primary = makeArray(result.tables[name].primary)
